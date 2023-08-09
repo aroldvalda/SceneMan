@@ -15,7 +15,7 @@ It is useful for separating your game into distinct “screens” that are store
 
 See the [Example](https://github.com/KINGTUT10101/SceneMan/wiki/Example) page on the wiki.
 
-![image](https://github.com/KINGTUT10101/SceneMan/assets/45105509/b54fce55-e2f6-4578-9340-7ca895d29e93)
+![image](https://github.com/KINGTUT10101/SceneMan/assets/45105509/4df08b3f-3235-4a5d-91ca-5073b5924a50)
 
 ### Documentation:
 
