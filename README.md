@@ -1,5 +1,7 @@
 ## SceneMan
 
+![image](https://github.com/KINGTUT10101/SceneMan/assets/45105509/b54fce55-e2f6-4578-9340-7ca895d29e93)
+
 Scene Man is a simple and lightweight scene/gamestate manager! (No relation to [lucassardois/sceneman](https://github.com/lucassardois/sceneman))
 
 It is useful for separating your game into distinct “screens” that are stored in separate files. It can also be used to easily separate game logic from GUI logic. Below are some examples that demonstrate how Scene Man can be used.
