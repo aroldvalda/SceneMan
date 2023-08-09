@@ -1,7 +1,7 @@
 local sceneMan = {
     scenes = {}, -- All created scenes will be stored here.
     stack = {}, -- Scenes that are pushed will be stored here.
-    shared = {}, -- Variables that are shared between scene can be stored here
+    shared = {}, -- Variables that are shared between scenes can be stored here
 }
 
 --- Adds a new scene to Scene Man and initializes it via its load method.
