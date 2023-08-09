@@ -4,7 +4,10 @@ local sceneMan = {
     shared = {}, -- Variables that are shared between scene can be stored here
 }
 
--- Adds a new scene to the scenes table and initializes it via its load method.
+--- Adds a new scene to Scene Man and initializes it via its load method.
+-- @param name (string) The name of the new scene. This will be used later to push, insert, and remove this scene from the stack
+-- @param scene (table) A table containing the scene's attributes and callback functions
+-- @param ... (varargs) A series of values that will be passed to the scene's "load" callback
 function sceneMan:newScene (name, scene, ...)
     self.scenes[name] = scene
     self.scenes[name].name = name
@@ -13,7 +16,9 @@ function sceneMan:newScene (name, scene, ...)
     end
 end
 
--- Removes a scene from the scenes table and calls its delete method.
+--- Removes a scene from Scene Man and calls its delete method.
+-- If you try to push or insert a deleted scene, Scene Man will throw an error!
+-- @param name (string) The name of the scene that should be deleted
 function sceneMan:deleteScene (name)
     if self.scenes[name] ~= nil then
         if self.scenes[name].delete ~= nil then
@@ -23,17 +28,22 @@ function sceneMan:deleteScene (name)
     end
 end
 
--- Returns the current size of the stack. Value may range from 0 to infinity.
+--- Returns the current size of the stack.
+-- @return (int) The size of the stack
 function sceneMan:getStackSize ()
     return #self.stack
 end
 
--- Returns the name of the current scene. It will return nil is there are no scenes on the stack.
+--- Gives the name of the current scene. It will return nil is there are no scenes on the stack.
+-- @return (string) The name of the scene at the top of the stack
 function sceneMan:getCurrentScene ()
     return #self.stack >= 1 and self.stack[#self.stack].name or nil
 end
 
--- Adds a scene from the scenes table onto the stack. Scenes at the top of the stack will have their functions called last.
+--- Adds a scene from the scenes table onto the stack.
+-- Scenes at the top of the stack will have their functions called last
+-- @raise When the given scene name isn't registered inside Scene Man
+-- @param name (string) The name of the scene to add to the top of the stack
 function sceneMan:push (name)
     if self.scenes[name] == nil then
         error ('Attempt to enter undefined scene "' .. name .. '"')
@@ -45,7 +55,7 @@ function sceneMan:push (name)
     end
 end
 
--- Pops a scene off of the stack.
+--- Pops a scene off of the stack.
 function sceneMan:pop ()
     if #self.stack >= 1 then
         local temp = self.stack[#self.stack]
@@ -56,12 +66,16 @@ function sceneMan:pop ()
     end
 end
 
--- Removes all scenes from the stack
+--- Removes all scenes from the stack.
 function sceneMan:clearStack ()
     self.stack = {}
 end
 
--- Adds a scene to the stack at a certain index.
+--- Adds a scene to the stack at a given index.
+-- @raise When the given scene name isn't registered inside Scene Man
+-- @param name (string) The name of the scene to add to the top of the stack
+-- @param index (int) The position within the stack that the scene should be inserted at
+-- @return (bool) True if the operation was successful
 function sceneMan:insert (name, index)
     if self.scenes[name] == nil then
         error ('Attempt to enter undefined scene "' .. name .. '"')
@@ -72,10 +86,14 @@ function sceneMan:insert (name, index)
         if self.scenes[name].whenAdded ~= nil then
             self.scenes[name]:whenAdded ()
         end
+        return true
     end
+    return false
 end
 
--- Removes a scene to the stack at a certain index.
+--- Removes a scene from the stack at a certain index.
+-- @param index (int) The position within the stack that the scene should be removed at
+-- @return (bool) True if the operation was successful
 function sceneMan:remove (index)
     if index >= 1 and index <= #self.stack then
         local temp = self.stack[index]
@@ -86,6 +104,9 @@ function sceneMan:remove (index)
     end
 end
 
+--- Fires an event callback for all scene on the stack.
+-- @param eventName (string) The name of the event
+-- @param ... (varargs) A series of values that will be passed to the scenes' event callbacks
 function sceneMan:event (eventName, ...)
     for i = 1, #self.stack do
         local scene = self.stack[i]
