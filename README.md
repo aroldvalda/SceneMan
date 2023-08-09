@@ -1,4 +1,4 @@
-# Scene-Man
+# SceneMan
 Scene Man is a simple and lightweight scene/gamestate manager!
 
 ### Features:
