@@ -5,6 +5,7 @@ local sceneMan = {
 }
 
 --- Adds a new scene to Scene Man and initializes it via its load method.
+-- This will call the scene's "load" method
 -- @param name (string) The name of the new scene. This will be used later to push, insert, and remove this scene from the stack
 -- @param scene (table) A table containing the scene's attributes and callback functions
 -- @param ... (varargs) A series of values that will be passed to the scene's "load" callback
@@ -17,9 +18,11 @@ function sceneMan:newScene (name, scene, ...)
 end
 
 --- Removes a scene from Scene Man and calls its delete method.
+-- This will call the scene's "delete" method
 -- If you try to push or insert a deleted scene, Scene Man will throw an error!
 -- @param name (string) The name of the scene that should be deleted
-function sceneMan:deleteScene (name)
+-- @param ... (varargs) A series of values that will be passed to the scene's "delete" callback
+function sceneMan:deleteScene (name, ...)
     if self.scenes[name] ~= nil then
         if self.scenes[name].delete ~= nil then
             self.scenes[name]:delete ()
@@ -41,6 +44,7 @@ function sceneMan:getCurrentScene ()
 end
 
 --- Adds a scene from the scenes table onto the stack.
+-- This will call the scene's "whenAdded" method
 -- Scenes at the top of the stack will have their functions called last
 -- @raise When the given scene name isn't registered inside Scene Man
 -- @param name (string) The name of the scene to add to the top of the stack
@@ -56,6 +60,7 @@ function sceneMan:push (name)
 end
 
 --- Pops a scene off of the stack.
+-- This will call the topmost scene's "whenRemoved" method
 function sceneMan:pop ()
     if #self.stack >= 1 then
         local temp = self.stack[#self.stack]
@@ -66,12 +71,8 @@ function sceneMan:pop ()
     end
 end
 
---- Removes all scenes from the stack.
-function sceneMan:clearStack ()
-    self.stack = {}
-end
-
 --- Adds a scene to the stack at a given index.
+-- This will call the scene's "whenAdded" method
 -- @raise When the given scene name isn't registered inside Scene Man
 -- @param name (string) The name of the scene to add to the top of the stack
 -- @param index (int) The position within the stack that the scene should be inserted at
@@ -92,6 +93,7 @@ function sceneMan:insert (name, index)
 end
 
 --- Removes a scene from the stack at a certain index.
+-- This will call the scene's "whenRemoved" method
 -- @param index (int) The position within the stack that the scene should be removed at
 -- @return (bool) True if the operation was successful
 function sceneMan:remove (index)
@@ -99,12 +101,24 @@ function sceneMan:remove (index)
         local temp = self.stack[index]
         table.remove (self.stack, index)
         if temp.whenRemoved ~= nil then
-            temp.whenRemoved ()
+            temp:whenRemoved ()
         end
     end
 end
 
---- Fires an event callback for all scene on the stack.
+--- Removes all scenes from the stack.
+-- This will call all the scenes' "whenRemoved" methods, starting from the topmost scene
+function sceneMan:clearStack ()
+    for i = #self.stack, 1, -1 do
+        if self.stack[i].whenRemoved ~= nil then
+            self.stack[i]:whenRemoved ()
+        end
+    end
+    
+    self.stack = {}
+end
+
+--- Fires an event callback for all scenes on the stack.
 -- @param eventName (string) The name of the event
 -- @param ... (varargs) A series of values that will be passed to the scenes' event callbacks
 function sceneMan:event (eventName, ...)
