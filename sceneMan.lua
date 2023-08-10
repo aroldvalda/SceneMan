@@ -2,7 +2,41 @@ local sceneMan = {
     scenes = {}, -- All created scenes will be stored here.
     stack = {}, -- Scenes that are pushed will be stored here.
     shared = {}, -- Variables that are shared between scenes can be stored here
+    buffer = {}, -- Used to store the scene stack when the original scene stack is disabled
+    frozen = false, -- If true, the buffer will be used instead of the original stack
 }
+
+--- A helper funciton that returns either the buffer or the stack based on the value of menuMan.frozen.
+-- @return (table) The buffer if the frozen flag is true, other the stack
+local function getStack ()
+    return (sceneMan.frozen == true) and sceneMan.buffer or sceneMan.stack
+end
+
+--- Redirects stack-altering operations into the buffer instead.
+function sceneMan:freeze ()
+    if self.frozen == false then
+        self.buffer = {} -- Resets the buffer
+
+        -- Copies the stack into the buffer
+        for i = 1, #self.stack do
+            self.buffer[i] = self.stack[i]
+        end
+        self.frozen = true
+    end
+end
+
+--- Copies the changes from the buffer back into the original stack.
+function sceneMan:unfreeze ()
+    if self.frozen == true then
+        self.stack = {} -- Resets the stack
+
+        -- Copies the buffer back into the stack
+        for i = 1, #self.buffer do
+            self.stack[i] = self.buffer[i]
+        end
+        self.frozen = false
+    end
+end
 
 --- Adds a new scene to Scene Man and initializes it via its load method.
 -- This will call the scene's "load" method
@@ -49,11 +83,13 @@ end
 -- @raise When the given scene name isn't registered inside Scene Man
 -- @param name (string) The name of the scene to add to the top of the stack
 function sceneMan:push (name)
+    local stack = getStack ()
+    
     if self.scenes[name] == nil then
         error ('Attempt to enter undefined scene "' .. name .. '"')
     end
     
-    self.stack[#self.stack + 1] = self.scenes[name]
+    stack[#stack + 1] = self.scenes[name]
     if self.scenes[name].whenAdded ~= nil then
         self.scenes[name]:whenAdded ()
     end
@@ -62,9 +98,11 @@ end
 --- Pops a scene off of the stack.
 -- This will call the topmost scene's "whenRemoved" method
 function sceneMan:pop ()
-    if #self.stack >= 1 then
-        local temp = self.stack[#self.stack]
-        self.stack[#self.stack] = nil
+    local stack = getStack ()
+    
+    if #stack >= 1 then
+        local temp = stack[#stack]
+        stack[#stack] = nil
         if temp.whenRemoved ~= nil then
             temp:whenRemoved ()
         end
@@ -78,12 +116,14 @@ end
 -- @param index (int) The position within the stack that the scene should be inserted at
 -- @return (bool) True if the operation was successful
 function sceneMan:insert (name, index)
+    local stack = getStack ()
+    
     if self.scenes[name] == nil then
         error ('Attempt to enter undefined scene "' .. name .. '"')
     end
     
-    if index >= 1 and index <= #self.stack then
-        table.insert (self.stack, index, name)
+    if index >= 1 and index <= #stack then
+        table.insert (stack, index, name)
         if self.scenes[name].whenAdded ~= nil then
             self.scenes[name]:whenAdded ()
         end
@@ -97,9 +137,11 @@ end
 -- @param index (int) The position within the stack that the scene should be removed at
 -- @return (bool) True if the operation was successful
 function sceneMan:remove (index)
-    if index >= 1 and index <= #self.stack then
-        local temp = self.stack[index]
-        table.remove (self.stack, index)
+    local stack = getStack ()
+    
+    if index >= 1 and index <= #stack then
+        local temp = stack[index]
+        table.remove (stack, index)
         if temp.whenRemoved ~= nil then
             temp:whenRemoved ()
         end
@@ -109,19 +151,29 @@ end
 --- Removes all scenes from the stack.
 -- This will call all the scenes' "whenRemoved" methods, starting from the topmost scene
 function sceneMan:clearStack ()
-    for i = #self.stack, 1, -1 do
-        if self.stack[i].whenRemoved ~= nil then
-            self.stack[i]:whenRemoved ()
+    local stack = getStack ()
+    
+    for i = #stack, 1, -1 do
+        if stack[i].whenRemoved ~= nil then
+            stack[i]:whenRemoved ()
         end
     end
-    
-    self.stack = {}
+
+    if self.frozen == true then
+        self.buffer = {}
+    else
+        self.stack = {}
+    end
 end
 
 --- Fires an event callback for all scenes on the stack.
+-- This will automatically freeze the stack until all scene have been iterated over
 -- @param eventName (string) The name of the event
 -- @param ... (varargs) A series of values that will be passed to the scenes' event callbacks
 function sceneMan:event (eventName, ...)
+    local prefrozen = self.frozen
+    self:freeze ()
+
     for i = 1, #self.stack do
         local scene = self.stack[i]
         if scene[eventName] ~= nil then
@@ -130,6 +182,10 @@ function sceneMan:event (eventName, ...)
         if i >= #self.stack then
             break
         end
+    end
+
+    if prefrozen == false then
+        self:unfreeze ()
     end
 end
 
