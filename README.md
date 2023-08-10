@@ -17,6 +17,10 @@ See the [Example](https://github.com/KINGTUT10101/SceneMan/wiki/Example) page on
 
 ![image](https://github.com/KINGTUT10101/SceneMan/assets/45105509/4df08b3f-3235-4a5d-91ca-5073b5924a50)
 
+### Known Issues:
+
+*   Altering the scene stack (with push, pop, etc) may cause a crash if you do it within a scene that is not at the top of the stack
+
 ### Documentation:
 
 #### Storage tables:
