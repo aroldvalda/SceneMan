@@ -6,20 +6,20 @@ It is useful for separating your game into distinct “screens” that are store
 
 ### Features:
 
-*   Stack-based: Multiple scenes can be layered over one another at the same time. Scenes can also pop and push other scenes onto the stack at any time
-*   Extremely flexible: custom callbacks are trivial to define and can be used in any situation (updating, drawing, detecting mouse clicks, etc)
-*   Small size: The entire system is less than 200 lines long. It should take up next to no space inside your projects
-*   Portable: Works in any Lua-based frameworks or game engines
+*   Stack-based: Multiple scenes can be layered over one another at the same time. Scenes can also pop and push other scenes onto the stack at any time.
+*   Extremely flexible: custom callbacks are trivial to define and can be used in any situation (updating, drawing, detecting mouse clicks, etc).
+*   Small size: The entire system is less than 200 lines long. It should take up next to no space inside your projects.
+*   Portable: Works in any Lua-based frameworks or game engines.
+*   Stack freezing: The scene stack can be “frozen” so the scenes only transition when you want them to.
 
 ### Usage:
 
-See the [Example](https://github.com/KINGTUT10101/SceneMan/wiki/Example) page on the wiki.
+See the [Example](https://github.com/KINGTUT10101/SceneMan/wiki/Example) page on the wiki for a general sample.
+
+See the [Freezing](https://github.com/KINGTUT10101/SceneMan/wiki/Freezing) page on the wiki for an example of the freezing system.
 
 ![image](https://github.com/KINGTUT10101/SceneMan/assets/45105509/4df08b3f-3235-4a5d-91ca-5073b5924a50)
 
-### Known Issues:
-
-*   Altering the scene stack (with push, pop, etc) may cause a crash if you do it within a scene that is not at the top of the stack. This will be fixed sometime in the future
 
 ### Documentation:
 
@@ -29,6 +29,8 @@ See the [Example](https://github.com/KINGTUT10101/SceneMan/wiki/Example) page on
 sceneMan.scenes = {}, -- All created scenes will be stored here.
 sceneMan.stack = {}, -- Scenes that are pushed will be stored here.
 sceneMan.shared = {}, -- Variables that are shared between scenes can be stored here
+buffer = {}, -- Used to store the scene stack when the original scene stack is disabled
+frozen = false, -- If true, the buffer will be used instead of the original stack
 ```
 
 #### Methods:
@@ -89,4 +91,10 @@ sceneMan:clearStack ()
 -- @param eventName (string) The name of the event
 -- @param ... (varargs) A series of values that will be passed to the scenes' event callbacks
 sceneMan:event (eventName, ...)
+
+--- Redirects stack-altering operations into the buffer instead.
+sceneMan:freeze ()
+
+--- Copies the changes from the buffer back into the original stack.
+sceneMan:unfreeze ()
 ```
