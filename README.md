@@ -19,7 +19,7 @@ See the [Example](https://github.com/KINGTUT10101/SceneMan/wiki/Example) page on
 
 ### Known Issues:
 
-*   Altering the scene stack (with push, pop, etc) may cause a crash if you do it within a scene that is not at the top of the stack
+*   Altering the scene stack (with push, pop, etc) may cause a crash if you do it within a scene that is not at the top of the stack. This will be fixed sometime in the future
 
 ### Documentation:
 
