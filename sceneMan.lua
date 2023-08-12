@@ -152,27 +152,28 @@ function sceneMan:remove (index, ...)
     end
 end
 
---- Removes all scenes from the stack.
+--- Removes all scenes from the stack, starting at the top.
 -- This will call all the scenes' "whenRemoved" methods, starting from the topmost scene
+-- This will automatically freeze the stack until all scenes have been iterated over
 -- @param ... (varargs) A list of values that will be passed to the event's "whenRemoved" callback function
 function sceneMan:clearStack (...)
-    local stack = getStack ()
+    local prefrozen = self.frozen
+    self:freeze ()
+    self.buffer = {}
     
-    for i = #stack, 1, -1 do
-        if stack[i].whenRemoved ~= nil then
-            stack[i]:whenRemoved (...)
+    for i = #self.stack, 1, -1 do
+        if self.stack[i].whenRemoved ~= nil then
+            self.stack[i]:whenRemoved (...)
         end
     end
 
-    if self.frozen == true then
-        self.buffer = {}
-    else
-        self.stack = {}
+    if prefrozen == false then
+        self:unfreeze ()
     end
 end
 
 --- Fires an event callback for all scenes on the stack.
--- This will automatically freeze the stack until all scene have been iterated over
+-- This will automatically freeze the stack until all scenes have been iterated over
 -- @param eventName (string) The name of the event
 -- @param ... (varargs) A series of values that will be passed to the scenes' event callbacks
 function sceneMan:event (eventName, ...)
