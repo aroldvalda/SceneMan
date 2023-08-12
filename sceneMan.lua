@@ -82,7 +82,8 @@ end
 -- Scenes at the top of the stack will have their functions called last
 -- @raise When the given scene name isn't registered inside Scene Man
 -- @param name (string) The name of the scene to add to the top of the stack
-function sceneMan:push (name)
+-- @param ... (varargs) A list of values that will be passed to the event's "whenAdded" callback function
+function sceneMan:push (name, ...)
     local stack = getStack ()
     
     if self.scenes[name] == nil then
@@ -91,20 +92,21 @@ function sceneMan:push (name)
     
     stack[#stack + 1] = self.scenes[name]
     if self.scenes[name].whenAdded ~= nil then
-        self.scenes[name]:whenAdded ()
+        self.scenes[name]:whenAdded (...)
     end
 end
 
 --- Pops a scene off of the stack.
 -- This will call the topmost scene's "whenRemoved" method
-function sceneMan:pop ()
+-- @param ... (varargs) A list of values that will be passed to the event's "whenRemoved" callback function
+function sceneMan:pop (...)
     local stack = getStack ()
     
     if #stack >= 1 then
         local temp = stack[#stack]
         stack[#stack] = nil
         if temp.whenRemoved ~= nil then
-            temp:whenRemoved ()
+            temp:whenRemoved (...)
         end
     end
 end
@@ -114,8 +116,9 @@ end
 -- @raise When the given scene name isn't registered inside Scene Man
 -- @param name (string) The name of the scene to add to the top of the stack
 -- @param index (int) The position within the stack that the scene should be inserted at
+-- @param ... (varargs) A list of values that will be passed to the event's "whenAdded" callback function
 -- @return (bool) True if the operation was successful
-function sceneMan:insert (name, index)
+function sceneMan:insert (name, index, ...)
     local stack = getStack ()
     
     if self.scenes[name] == nil then
@@ -125,7 +128,7 @@ function sceneMan:insert (name, index)
     if index >= 1 and index <= #stack then
         table.insert (stack, index, name)
         if self.scenes[name].whenAdded ~= nil then
-            self.scenes[name]:whenAdded ()
+            self.scenes[name]:whenAdded (...)
         end
         return true
     end
@@ -135,27 +138,29 @@ end
 --- Removes a scene from the stack at a certain index.
 -- This will call the scene's "whenRemoved" method
 -- @param index (int) The position within the stack that the scene should be removed at
+-- @param ... (varargs) A list of values that will be passed to the event's "whenRemoved" callback function
 -- @return (bool) True if the operation was successful
-function sceneMan:remove (index)
+function sceneMan:remove (index, ...)
     local stack = getStack ()
     
     if index >= 1 and index <= #stack then
         local temp = stack[index]
         table.remove (stack, index)
         if temp.whenRemoved ~= nil then
-            temp:whenRemoved ()
+            temp:whenRemoved (...)
         end
     end
 end
 
 --- Removes all scenes from the stack.
 -- This will call all the scenes' "whenRemoved" methods, starting from the topmost scene
-function sceneMan:clearStack ()
+-- @param ... (varargs) A list of values that will be passed to the event's "whenRemoved" callback function
+function sceneMan:clearStack (...)
     local stack = getStack ()
     
     for i = #stack, 1, -1 do
         if stack[i].whenRemoved ~= nil then
-            stack[i]:whenRemoved ()
+            stack[i]:whenRemoved (...)
         end
     end
 

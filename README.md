@@ -63,29 +63,34 @@ sceneMan:getCurrentScene ()
 -- Scenes at the top of the stack will have their functions called last
 -- @raise When the given scene name isn't registered inside Scene Man
 -- @param name (string) The name of the scene to add to the top of the stack
-sceneMan:push (name)
+-- @param ... (varargs) A list of values that will be passed to the event's "whenAdded" callback function
+sceneMan:push (name, ...)
 
 --- Pops a scene off of the stack.
 -- This will call the topmost scene's "whenRemoved" method
-sceneMan:pop ()
+-- @param ... (varargs) A list of values that will be passed to the event's "whenRemoved" callback function
+sceneMan:pop (...)
 
 --- Adds a scene to the stack at a given index.
 -- This will call the scene's "whenAdded" method
 -- @raise When the given scene name isn't registered inside Scene Man
 -- @param name (string) The name of the scene to add to the top of the stack
 -- @param index (int) The position within the stack that the scene should be inserted at
+-- @param ... (varargs) A list of values that will be passed to the event's "whenAdded" callback function
 -- @return (bool) True if the operation was successful
-sceneMan:insert (name, index)
+sceneMan:insert (name, index, ...)
 
 --- Removes a scene from the stack at a certain index.
 -- This will call the scene's "whenRemoved" method
 -- @param index (int) The position within the stack that the scene should be removed at
+-- @param ... (varargs) A list of values that will be passed to the event's "whenRemoved" callback function
 -- @return (bool) True if the operation was successful
-sceneMan:remove (index)
+sceneMan:remove (index, ...)
 
 --- Removes all scenes from the stack.
 -- This will call all the scenes' "whenRemoved" methods, starting from the topmost scene
-sceneMan:clearStack ()
+-- @param ... (varargs) A list of values that will be passed to the event's "whenRemoved" callback function
+sceneMan:clearStack (...)
 
 --- Fires an event callback for all scenes on the stack.
 -- @param eventName (string) The name of the event
