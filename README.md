@@ -6,7 +6,7 @@ It is useful for separating your game into distinct “screens” that are store
 
 ### Features:
 
-*   Stack-based: Multiple scenes can be layered over one another at the same time. Scenes can also pop and push other scenes onto the stack at any time.
+*   Stack-based: Multiple scenes can be layered over one another at the same time. Scenes can also push and pop other scenes from the stack at any time.
 *   Extremely flexible: custom callbacks are trivial to define and can be used in any situation (updating, drawing, detecting mouse clicks, etc).
 *   Small size: The entire system is only a few hundred lines long. It should take up next to no space inside your projects.
 *   Portable: Works in any Lua-based frameworks or game engines. Tested with Lua version 5.1.
@@ -26,13 +26,13 @@ See the [Freezing](https://github.com/KINGTUT10101/SceneMan/wiki/Freezing) page 
 #### Attributes:
 
 ```plaintext
-sceneMan.scenes = {}, -- All created scenes will be stored here.
-sceneMan.stack = {}, -- Scenes that are pushed will be stored here.
-sceneMan.shared = {}, -- Stores variables that are shared between scenes
-sceneMan.saved = {}, -- Stores saved stacks so they can be restored later
-sceneMan.buffer = {}, -- Stores the scene stack when the original scene stack is disabled
-sceneMan.frozen = false, -- If true, the buffer will be used instead of the original stack
-sceneMan.version = "1.2", -- The used version of Scene Man
+sceneMan.scenes = {} -- All created scenes will be stored here.
+sceneMan.stack = {} -- Scenes that are pushed will be stored here.
+sceneMan.shared = {} -- Stores variables that are shared between scenes
+sceneMan.saved = {} -- Stores saved stacks so they can be restored later
+sceneMan.buffer = {} -- Stores the scene stack when the original scene stack is disabled
+sceneMan.frozen = false -- If true, the buffer will be used instead of the original stack
+sceneMan.version = "1.2" -- The used version of Scene Man
 ```
 
 #### Methods:
