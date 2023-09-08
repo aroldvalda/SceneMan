@@ -1,9 +1,11 @@
 local sceneMan = {
     scenes = {}, -- All created scenes will be stored here.
     stack = {}, -- Scenes that are pushed will be stored here.
-    shared = {}, -- Variables that are shared between scenes can be stored here
-    buffer = {}, -- Used to store the scene stack when the original scene stack is disabled
+    shared = {}, -- Stores variables that are shared between scenes
+    saved = {}, -- Stores saved stacks so they can be restored later
+    buffer = {}, -- Stores the scene stack when the original scene stack is disabled
     frozen = false, -- If true, the buffer will be used instead of the original stack
+    version = "1.2", -- The used version of Scene Man
 }
 
 --- A helper funciton that returns either the buffer or the stack based on the value of menuMan.frozen.
@@ -36,6 +38,49 @@ function sceneMan:unfreeze ()
         end
         self.frozen = false
     end
+end
+
+--- Saves the current contents of the stack so it can be restored later.
+-- This will save the frozen buffer if the stack is frozen
+-- This will not modify the current stack in any way
+-- @param id (string) A unique ID that will be used to identify the saved stack. It will override anything currently stored at that ID
+function sceneMan:saveStack (id)
+    local stack = getStack ()
+    local savedStack = {}
+
+    for i = 1, #stack do
+        savedStack[i] = stack[i].name
+    end
+
+    self.saved[id] = savedStack
+end
+
+--- Loads a stack from the saved table.
+-- This will call the loaded scenes' "whenAdded" methods
+-- @param id (string) A unique ID that identifies the stack that should be restored
+-- @param ... (varargs) A list of values that will be passed to the event's "whenAdded" callback function
+-- @return True if the stored stack at the given ID exists and if the current stack is empty, otherwise false
+function sceneMan:restoreStack (id, ...)
+    local stack = getStack ()
+    local savedStack = self.saved[id]
+
+    if savedStack == nil or #stack ~= 0 then
+        return false
+    else
+        for i = 1, #savedStack do
+            self:push (savedStack[i], ...)
+        end
+
+        return true
+    end
+end
+
+--- Removes a saved stack permanently.
+-- This will not delete the scenes in the stack
+-- This will not affect the current stack, even if it was restored using the to-be-deleted stack
+-- @param id (string) A unique ID that identifies the stack that should be deleted
+function sceneMan:deleteStack (id)
+    self.saved[id] = nil
 end
 
 --- Adds a new scene to Scene Man and initializes it via its load method.
@@ -72,9 +117,10 @@ function sceneMan:getStackSize ()
 end
 
 --- Gives the name of the current scene. It will return nil is there are no scenes on the stack.
--- @return (string) The name of the scene at the top of the stack
+-- This will not look inside the frozen buffer, even if the stack is frozen
+-- @return (string) The name of the scene at the top of the stack or nil if the stack is empty
 function sceneMan:getCurrentScene ()
-    return #self.stack >= 1 and self.stack[#self.stack].name or nil
+    return (#self.stack >= 1) and self.stack[#self.stack].name or nil
 end
 
 --- Adds a scene from the scenes table onto the stack.

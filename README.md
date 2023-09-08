@@ -8,9 +8,10 @@ It is useful for separating your game into distinct “screens” that are store
 
 *   Stack-based: Multiple scenes can be layered over one another at the same time. Scenes can also pop and push other scenes onto the stack at any time.
 *   Extremely flexible: custom callbacks are trivial to define and can be used in any situation (updating, drawing, detecting mouse clicks, etc).
-*   Small size: The entire system is less than 200 lines long. It should take up next to no space inside your projects.
-*   Portable: Works in any Lua-based frameworks or game engines.
+*   Small size: The entire system is only a few hundred lines long. It should take up next to no space inside your projects.
+*   Portable: Works in any Lua-based frameworks or game engines. Tested with Lua version 5.1.
 *   Stack freezing: The scene stack can be “frozen” so the scenes only transition when you want them to.
+*   Stack saving: The current contents of the stack can be saved and restored with ease.
 
 ### Usage:
 
@@ -20,22 +21,23 @@ See the [Freezing](https://github.com/KINGTUT10101/SceneMan/wiki/Freezing) page 
 
 ![image](https://github.com/KINGTUT10101/SceneMan/assets/45105509/4df08b3f-3235-4a5d-91ca-5073b5924a50)
 
-
 ### Documentation:
 
-#### Storage tables:
+#### Attributes:
 
-```lua
+```plaintext
 sceneMan.scenes = {}, -- All created scenes will be stored here.
 sceneMan.stack = {}, -- Scenes that are pushed will be stored here.
-sceneMan.shared = {}, -- Variables that are shared between scenes can be stored here
-buffer = {}, -- Used to store the scene stack when the original scene stack is disabled
-frozen = false, -- If true, the buffer will be used instead of the original stack
+sceneMan.shared = {}, -- Stores variables that are shared between scenes
+sceneMan.saved = {}, -- Stores saved stacks so they can be restored later
+sceneMan.buffer = {}, -- Stores the scene stack when the original scene stack is disabled
+sceneMan.frozen = false, -- If true, the buffer will be used instead of the original stack
+sceneMan.version = "1.2", -- The used version of Scene Man
 ```
 
 #### Methods:
 
-```lua
+```plaintext
 --- Adds a new scene to Scene Man and initializes it via its load method.
 -- This will call the scene's "load" method
 -- @param name (string) The name of the new scene. This will be used later to push, insert, and remove this scene from the stack
@@ -102,4 +104,23 @@ sceneMan:freeze ()
 
 --- Copies the changes from the buffer back into the original stack.
 sceneMan:unfreeze ()
+
+--- Saves the current state of the stack so it can be restored later.
+-- This will save the frozen buffer if the stack is frozen
+-- This will not modify the current stack in any way
+-- @param id (string) A unique ID that will be used to identify the saved stack. It will override anything currently stored at that ID
+sceneMan:saveStack (id)
+
+--- Loads a stack from the saved table.
+-- This will call the loaded scenes' "whenAdded" methods
+-- @param id (string) A unique ID that identifies the stack that should be restored
+-- @param ... (varargs) A list of values that will be passed to the event's "whenAdded" callback function
+-- @return True if the stored stack at the given ID exists and if the current stack is empty, otherwise false
+sceneMan:restoreStack (id, ...)
+
+--- Removes a saved stack permanently.
+-- This will not delete the scenes in the stack
+-- This will not affect the current stack, even if it was restored using the to-be-deleted stack
+-- @param id (string) A unique ID that identifies the stack that should be deleted
+sceneMan:deleteStack (id)
 ```

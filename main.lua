@@ -26,4 +26,15 @@ end
 function love.keypressed (key)
 	-- The event name can also be anything we want, so long as we use the same name inside the scenes we define
 	sceneMan:event ("key", key)
+
+    -- This demonstrates the stack saving system
+    if key == "q" then
+        sceneMan:saveStack ("test") -- Saves the current stack with id="test"
+    elseif key == "w" then
+        print (sceneMan:restoreStack ("test")) -- Restores the stack stored with id="test"
+    elseif key == "e" then
+        sceneMan:deleteStack ("test") -- Deletes the stack stored with id="test"
+    elseif key == "r" then
+        sceneMan:clearStack () -- Clears the stack. This is required, otherwise the restoreStack method will fail
+    end
 end
