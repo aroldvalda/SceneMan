@@ -25,7 +25,7 @@ See the [Freezing](https://github.com/KINGTUT10101/SceneMan/wiki/Freezing) page 
 
 #### Attributes:
 
-```plaintext
+```lua
 sceneMan.scenes = {} -- All created scenes will be stored here.
 sceneMan.stack = {} -- Scenes that are pushed will be stored here.
 sceneMan.shared = {} -- Stores variables that are shared between scenes
@@ -37,7 +37,7 @@ sceneMan.version = "1.2" -- The used version of Scene Man
 
 #### Methods:
 
-```plaintext
+```lua
 --- Adds a new scene to Scene Man and initializes it via its load method.
 -- This will call the scene's "load" method
 -- @param name (string) The name of the new scene. This will be used later to push, insert, and remove this scene from the stack
