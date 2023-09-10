@@ -31,7 +31,7 @@ See the [Freezing](https://github.com/KINGTUT10101/SceneMan/wiki/Freezing) page 
     *   Stacks can now be saved and restored using unique IDs assigned to each saved stack
 *   Version 1.3:
     *   Added stack locking
-    *   Stacks can now be locked up to a specified level. Any scenes at and below the specified level will be skipped in after an event is triggered
+    *   Stacks can now be locked up to a specified level. Any scenes at and below the specified level will be skipped during an event trigger
 
 ### Documentation:
 
