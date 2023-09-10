@@ -21,6 +21,18 @@ See the [Freezing](https://github.com/KINGTUT10101/SceneMan/wiki/Freezing) page 
 
 ![image](https://github.com/KINGTUT10101/SceneMan/assets/45105509/4df08b3f-3235-4a5d-91ca-5073b5924a50)
 
+### Changelog:
+
+*   Version 1.1:
+    *   Added stack freezing
+    *   The stack will automatically freeze while using the event and clearStack methods
+*   Version 1.2:
+    *   Added stack saving
+    *   Stacks can now be saved and restored using unique IDs assigned to each saved stack
+*   Version 1.3:
+    *   Added stack locking
+    *   Stacks can now be locked up to a specified level. Any scenes at and below the specified level will be skipped in after an event is triggered
+
 ### Documentation:
 
 #### Attributes:
@@ -32,7 +44,8 @@ sceneMan.shared = {} -- Stores variables that are shared between scenes
 sceneMan.saved = {} -- Stores saved stacks so they can be restored later
 sceneMan.buffer = {} -- Stores the scene stack when the original scene stack is disabled
 sceneMan.frozen = false -- If true, the buffer will be used instead of the original stack
-sceneMan.version = "1.2" -- The used version of Scene Man
+lockLevel = 0 -- They highest level of the stack that is locked
+sceneMan.version = "1.3" -- The used version of Scene Man
 ```
 
 #### Methods:
@@ -104,6 +117,15 @@ sceneMan:freeze ()
 
 --- Copies the changes from the buffer back into the original stack.
 sceneMan:unfreeze ()
+
+--- Locks the stack up until the specified level.
+-- Locked scenes will have their event callbacks skipped, except for their "whenAdded", "whenRemoved", or "deleted" methods
+-- The bottommost item of the stack is at level 1
+-- @param level (int) The level that the stack should be locked up to
+sceneMan:lock (level)
+
+--- Unlocks the stack, which will allow all scenes to execute their event callbacks again.
+sceneMan:unlock ()
 
 --- Saves the current state of the stack so it can be restored later.
 -- This will save the frozen buffer if the stack is frozen

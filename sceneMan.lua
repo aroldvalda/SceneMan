@@ -5,7 +5,8 @@ local sceneMan = {
     saved = {}, -- Stores saved stacks so they can be restored later
     buffer = {}, -- Stores the scene stack when the original scene stack is disabled
     frozen = false, -- If true, the buffer will be used instead of the original stack
-    version = "1.2", -- The used version of Scene Man
+    lockLevel = 0, -- They highest level of the stack that is locked
+    version = "1.3", -- The used version of Scene Man
 }
 
 --- A helper funciton that returns either the buffer or the stack based on the value of menuMan.frozen.
@@ -81,6 +82,19 @@ end
 -- @param id (string) A unique ID that identifies the stack that should be deleted
 function sceneMan:deleteStack (id)
     self.saved[id] = nil
+end
+
+--- Locks the stack up until the specified level.
+-- Locked scenes will have their event callbacks skipped, except for their "whenAdded", "whenRemoved", or "deleted" methods
+-- The bottommost item of the stack is at level 1
+-- @param level (int) The level that the stack should be locked up to
+function sceneMan:lock (level)
+    self.lockLevel = level
+end
+
+--- Unlocks the stack, which will allow all scenes to execute their event callbacks again.
+function sceneMan:unlock ()
+    self.lockLevel = 0
 end
 
 --- Adds a new scene to Scene Man and initializes it via its load method.
@@ -226,7 +240,7 @@ function sceneMan:event (eventName, ...)
     local prefrozen = self.frozen
     self:freeze ()
 
-    for i = 1, #self.stack do
+    for i = math.max (self.lockLevel + 1, 1), #self.stack do
         local scene = self.stack[i]
         if scene[eventName] ~= nil then
             scene[eventName] (scene, ...)
