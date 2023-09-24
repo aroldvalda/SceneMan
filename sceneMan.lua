@@ -60,7 +60,7 @@ end
 -- This will call the loaded scenes' "whenAdded" methods
 -- @param id (string) A unique ID that identifies the stack that should be restored
 -- @param ... (varargs) A list of values that will be passed to the event's "whenAdded" callback function
--- @return True if the stored stack at the given ID exists and if the current stack is empty, otherwise false
+-- @return (bool) True if the stored stack at the given ID exists and if the current stack is empty, otherwise false
 function sceneMan:restoreStack (id, ...)
     local stack = getStack ()
     local savedStack = self.saved[id]
@@ -95,6 +95,12 @@ end
 --- Unlocks the stack, which will allow all scenes to execute their event callbacks again.
 function sceneMan:unlock ()
     self.lockLevel = 0
+end
+
+--- Gets the current lock level.
+-- @return (int) The current lock level
+function sceneMan:getLockLevel ()
+    return self.lockLevel
 end
 
 --- Adds a new scene to Scene Man and initializes it via its load method.
@@ -222,6 +228,26 @@ function sceneMan:clearStack (...)
     self.buffer = {}
     
     for i = #self.stack, 1, -1 do
+        if self.stack[i].whenRemoved ~= nil then
+            self.stack[i]:whenRemoved (...)
+        end
+    end
+
+    if prefrozen == false then
+        self:unfreeze ()
+    end
+end
+
+--- Removes all scenes from the unlocked portion of the stack, starting at the top.
+-- This will call all the scenes' "whenRemoved" methods, starting from the topmost scene
+-- This will automatically freeze the stack until all scenes have been iterated over
+-- @param ... (varargs) A list of values that will be passed to the event's "whenRemoved" callback function
+function sceneMan:clearUnlockedStack (...)
+    local prefrozen = self.frozen
+    self:freeze ()
+    self.buffer = {}
+    
+    for i = #self.stack, math.max (self.lockLevel + 1, 1), -1 do
         if self.stack[i].whenRemoved ~= nil then
             self.stack[i]:whenRemoved (...)
         end

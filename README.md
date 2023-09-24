@@ -12,6 +12,7 @@ It is useful for separating your game into distinct “screens” that are store
 *   Portable: Works in any Lua-based frameworks or game engines. Tested with Lua version 5.1.
 *   Stack freezing: The scene stack can be “frozen” so the scenes only transition when you want them to.
 *   Stack saving: The current contents of the stack can be saved and restored with ease.
+*   Stack locking: Stacks can be locked up to a specified "level" so everything below that level is not executed.
 
 ### Usage:
 
@@ -24,14 +25,17 @@ See the [Freezing](https://github.com/KINGTUT10101/SceneMan/wiki/Freezing) page 
 ### Changelog:
 
 *   Version 1.1:
-    *   Added stack freezing
-    *   The stack will automatically freeze while using the event and clearStack methods
+    *   Added stack freezing.
+    *   The stack will automatically freeze while using the event and clearStack methods.
 *   Version 1.2:
-    *   Added stack saving
-    *   Stacks can now be saved and restored using unique IDs assigned to each saved stack
+    *   Added stack saving.
+    *   Stacks can now be saved and restored using unique IDs assigned to each saved stack.
 *   Version 1.3:
-    *   Added stack locking
-    *   Stacks can now be locked up to a specified level. Any scenes at and below the specified level will be skipped during an event trigger
+    *   Added stack locking.
+    *   Stacks can now be locked up to a specified level. Any scenes at and below the specified level will be skipped during an event trigger. This can be used to easily transition to a new scene and back. Simply lock the stack, push the new scene, run its code, pop the new scene, and unlock the stack.
+*   Version 1.4:
+    *   Added a function for getting the current lock level value.
+    *   Added a function for clearing the unlocked portion of the stack, aka all the scenes above the current lock level value.
 
 ### Documentation:
 
@@ -107,6 +111,12 @@ sceneMan:remove (index, ...)
 -- @param ... (varargs) A list of values that will be passed to the event's "whenRemoved" callback function
 sceneMan:clearStack (...)
 
+--- Removes all scenes from the unlocked portion of the stack, starting at the top.
+-- This will call all the scenes' "whenRemoved" methods, starting from the topmost scene
+-- This will automatically freeze the stack until all scenes have been iterated over
+-- @param ... (varargs) A list of values that will be passed to the event's "whenRemoved" callback function
+sceneMan:clearUnlockedStack (...)
+
 --- Fires an event callback for all scenes on the stack.
 -- @param eventName (string) The name of the event
 -- @param ... (varargs) A series of values that will be passed to the scenes' event callbacks
@@ -127,6 +137,10 @@ sceneMan:lock (level)
 --- Unlocks the stack, which will allow all scenes to execute their event callbacks again.
 sceneMan:unlock ()
 
+--- Gets the current lock level.
+-- @return (int) The current lock level
+sceneMan:getLockLevel ()
+
 --- Saves the current state of the stack so it can be restored later.
 -- This will save the frozen buffer if the stack is frozen
 -- This will not modify the current stack in any way
@@ -137,7 +151,7 @@ sceneMan:saveStack (id)
 -- This will call the loaded scenes' "whenAdded" methods
 -- @param id (string) A unique ID that identifies the stack that should be restored
 -- @param ... (varargs) A list of values that will be passed to the event's "whenAdded" callback function
--- @return True if the stored stack at the given ID exists and if the current stack is empty, otherwise false
+-- @return (bool) True if the stored stack at the given ID exists and if the current stack is empty, otherwise false
 sceneMan:restoreStack (id, ...)
 
 --- Removes a saved stack permanently.
