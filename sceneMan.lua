@@ -124,7 +124,7 @@ end
 function sceneMan:deleteScene (name, ...)
     if self.scenes[name] ~= nil then
         if self.scenes[name].delete ~= nil then
-            self.scenes[name]:delete ()
+            self.scenes[name]:delete (...)
         end
         self.scenes[name] = nil
     end
